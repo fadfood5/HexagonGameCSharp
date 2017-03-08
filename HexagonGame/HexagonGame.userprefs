@@ -1,1 +1,12 @@
-﻿<Properties StartupItem="HexagonGame/HexagonGame.csproj" />
+﻿<Properties StartupItem="HexagonGame/HexagonGame.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="HexagonGame/Program.cs">
+    <Files>
+      <File FileName="HexagonGame/Program.cs" Line="114" Column="22" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

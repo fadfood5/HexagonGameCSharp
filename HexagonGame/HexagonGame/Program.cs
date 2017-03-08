@@ -5,6 +5,11 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace HexagonGame{
+	//Global variables
+	public static class Globals{ 
+		public int currentPlayer;
+	}
+
 	public class Edge{
 		public Vertex x;
 		public Vertex y;
@@ -97,6 +102,15 @@ namespace HexagonGame{
 			for (int i = 1; i < 7; i++) {
 				p.addVertex (i);
 			}
+
+			Console.WriteLine ("Which player starts first? (1 or 2)");
+			int player = Console.Read();
+
+			if (player == 1)
+				Globals.currentPlayer = 1;
+			else if (player == 2)
+				Globals.currentPlayer = 2;
+
 			//p.printEdges ();
 
 		}
