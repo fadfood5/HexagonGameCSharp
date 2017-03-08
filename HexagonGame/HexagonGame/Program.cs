@@ -6,31 +6,41 @@ using System.Collections.Generic;
 
 namespace HexagonGame{
 	public class Edge{
-		public int x;
-		public int y;
+		public Vertex x;
+		public Vertex y;
 		public int z;
 
-		public Edge(int a, int b, int player){
+		public Edge(Vertex a, Vertex b, int player){
 			x = a;
 			y = b;
 			z = player;
 		}
 	}
 
+	public class Vertex{
+		public int i;
+
+		public Vertex(int a){
+			i = a;
+		}
+	}
+
 	public class Hexagon{
 		//Instantiate lists
+		List<Vertex> vertices;
 		List<Edge> allEdges;
 		List<Edge> player1;
 		List<Edge> player2;
 
 		public Hexagon(int v){
 			//Create new lists to keep track of edges
+			vertices = new List<Vertex>();
 			allEdges = new List<Edge>();
 			player1 = new List<Edge>();
 			player2 = new List<Edge>();
 		}
 
-		public void addEdge(int i, int j, int player){
+		public void addEdge(Vertex i, Vertex j, int player){
 
 			//Create temp Edge Object
 			Edge newEdge = new Edge(i, j, player);
@@ -38,13 +48,24 @@ namespace HexagonGame{
 			//Add edge to corresponding list
 			if (player == 1)
 				player1.Add (newEdge);
-			else if (player2 == 2)
+			else if (player == 2)
 				player2.Add (newEdge);
 
 			//Add edge to list of all edges
 			allEdges.Add(newEdge);
 
-			Console.WriteLine("Added edge to vertex: (" + i + ", " + j + ") with weight " + wgt);
+			Console.WriteLine("Added edge to vertex: (" + i + ", " + j + ")");
+		}
+
+		public void addVertex(int i){
+
+			//Create temp Edge Object
+			Vertex newVertex = new Vertex(i);
+
+			//Add vertex to list of all vertices
+			vertices.Add(newVertex);
+
+			Console.WriteLine("Added vertex: " + i);
 		}
 
 		public void printEdges(){
@@ -74,7 +95,7 @@ namespace HexagonGame{
 		public static void Main(string[] args){
 			Hexagon p = new Hexagon (6);
 			for (int i = 1; i < 7; i++) {
-				
+				p.addVertex (i);
 			}
 			//p.printEdges ();
 
