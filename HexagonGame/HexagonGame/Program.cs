@@ -6,9 +6,17 @@ using System.Collections.Generic;
 
 namespace HexagonGame{
 	//Global variables
-	public class Globals{ 
-		public int currentPlayer;
-	}
+	public class Globals{
+        public int currentPlayer;
+        public int AIPlayer;
+        public List<Vertex> vertices;
+        public List<Edge> allPossibleMoves;
+        public List<Edge> allEdges;
+        public List<Edge> HumanPlayer;
+        public List<Edge> AIPlayerEdges;
+    }
+
+//    public static int currentPlayer = 2;
 
 	public class Edge{
 		public int x;
@@ -34,15 +42,15 @@ namespace HexagonGame{
 		//Instantiate lists
 		List<Vertex> vertices;
 		List<Edge> allEdges;
-		List<Edge> player1;
-		List<Edge> player2;
+		List<Edge> HumanPlayer;
+		List<Edge> AIPlayer;
 
 		public Hexagon(int v){
 			//Create new lists to keep track of edges
 			vertices = new List<Vertex>();
 			allEdges = new List<Edge>();
-			player1 = new List<Edge>();
-			player2 = new List<Edge>();
+            HumanPlayer = new List<Edge>();
+            AIPlayer = new List<Edge>();
 		}
 
 		public void changePlayer(Globals global){
@@ -62,9 +70,9 @@ namespace HexagonGame{
 
 			//Add edge to corresponding list
 			if (player == 1)
-				player1.Add (newEdge);
+                HumanPlayer.Add (newEdge);
 			else if (player == 2)
-				player2.Add (newEdge);
+                AIPlayer.Add (newEdge);
 
 			//Add edge to list of all edges
 			allEdges.Add(newEdge);
@@ -105,26 +113,26 @@ namespace HexagonGame{
 			int count = 0;
 			if (player == 1) {
 				Console.Write ("Player 1: ");
-				foreach (Edge item in player1) {
+				foreach (Edge item in HumanPlayer) {
 					Console.Write ("(" + item.x + ", " + item.y + ")");
 					count++;
 				}
 			} else if (player == 2) {
 				Console.Write ("Player 2: ");
-				foreach (Edge item in player2) {
+				foreach (Edge item in AIPlayer) {
 					Console.Write ("(" + item.x + ", " + item.y + ")");
 					count++;
 				}
 			}
 		}
 		public bool checkIfLoss(Globals globalValue){
-			foreach (Edge item in player2)
+			foreach (Edge item in AIPlayer)
             {
-                foreach (Edge item2 in player2)
+                foreach (Edge item2 in AIPlayer)
                 {
                     if (item2 != item && item.y == item2.x)
                     {
-                        foreach(Edge item3 in player2)
+                        foreach(Edge item3 in AIPlayer)
                         {
                             if(item3 != item2 && item3 != item && item2.y == item3.x)
                             {
@@ -143,8 +151,114 @@ namespace HexagonGame{
             
 		}
 
-		public static void Main(string[] args){
+        public static bool checkMoveLookahead(Edge possibleMove, Globals global)
+        {
+            foreach(Edge item in global.AIPlayerEdges)
+            {
+                foreach(Edge item2 in global.AIPlayerEdges)
+                {
+                    if(item2 != item)
+                    {
+                        if(item.y == item2.x && item2.y == possibleMove.x && possibleMove.y == item.x)
+                        {
+                            return true;
+                        }
+                        else if (item.x == item2.y && item2.x == possibleMove.y && possibleMove.x == item.y)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+            
+        //uses lookahead function to determine if this is a good move to make
+        public static void CalculateMove(int nodeOne, Globals global)
+        {
+            //at end, will contain all legal moves
+            List<Edge> possibleMoves = new List<Edge>();
+            int count = 0;
+            foreach(Vertex vertex in global.vertices)
+            {
+                Edge possibleMove = new Edge(nodeOne, vertex.i, global.AIPlayer);
+                foreach(Edge item in global.AIPlayerEdges)
+                {
+                    if(possibleMove == item)
+                    {
+                        count++;
+                    }
+                }
+                if (count == 0)
+                {
+                    //if possible Move makes us lose, ignore it
+                    if (!checkMoveLookahead(possibleMove, global))
+                    {
+                        possibleMoves.Add(possibleMove);
+                    }
+                }
+            }
+        }
+
+        public static void AIPlayerMove(Globals global)
+        {
+            int firstNode = 0;
+            int secondNode = 0;
+            int count = 0;
+            if(global.currentPlayer == global.AIPlayer)
+            {
+                foreach (Vertex vertex in global.vertices)
+                {
+
+                    foreach (Edge edgeItem in global.allEdges)
+                    {
+                        if (vertex.i == edgeItem.x || vertex.i == edgeItem.y)
+                        {
+                            count++;
+                        }
+
+                    }
+
+                    if (count == 0)
+                    {
+                        if (firstNode == 0)
+                        {
+                            firstNode = vertex.i;
+                        }
+                        else
+                            secondNode = vertex.i;
+
+                    }
+
+                    if(firstNode != 0 && secondNode != 0)
+                    {
+                        //make move with firstNode and secondNode
+                        Edge edgeMove = new HexagonGame.Edge(firstNode, secondNode, global.AIPlayer);
+                        global.allEdges.Add(edgeMove);
+                        global.AIPlayerEdges.Add(edgeMove);
+                    }
+
+                    else if (firstNode != 0 || secondNode == 0 )
+                    {
+                        //choose a vertex we already picked, using lookahead function
+                        CalculateMove(firstNode, global);
+                    }
+
+
+                    else if (firstNode == 0 && secondNode == 0)
+                    {
+                        //use lookahead function, find optimal move
+                    }
+                }
+            }
+
+        }
+
+        public static void Main(string[] args){
 			Hexagon p = new Hexagon (6);
+            bool gameFinished = false;
 			for (int i = 1; i < 7; i++) {
 				p.addVertex (i);
 			}
@@ -159,7 +273,20 @@ namespace HexagonGame{
 			Edge ed = new Edge (0, 1, 1);
 			p.addEdge (ed, 1);
 			p.checkIfEdgeExists (ed);
+
+            int currentPlayer = global.currentPlayer; 
+            int AIPlayer = global.AIPlayer;
+
+            while(!gameFinished)
+            {
+                //HumanPlayerMove();
+                //switch currentPlayer;
+                AIPlayerMove(global);
+            }
 			//p.printEdges ();
 		}
-	}
+
+
+
+    }
 }
