@@ -125,7 +125,11 @@ namespace HexagonGame{
 				}
 			}
 		}
+
+        // if the current list of edges means we lose, returns true
 		public bool checkIfLoss(Globals globalValue){
+
+            // check each edge we have made
 			foreach (Edge item in AIPlayer)
             {
                 foreach (Edge item2 in AIPlayer)
@@ -151,18 +155,22 @@ namespace HexagonGame{
             
 		}
 
+        // predicts possible moves to make using a specific edge given by CalculateMove()
         public static bool checkMoveLookahead(Edge possibleMove, Globals global)
-        {
+        {   
+            // check each move we already made
             foreach(Edge item in global.AIPlayerEdges)
             {
                 foreach(Edge item2 in global.AIPlayerEdges)
                 {
                     if(item2 != item)
                     {
+                        // if these edges connect, we would lose
                         if(item.y == item2.x && item2.y == possibleMove.x && possibleMove.y == item.x)
                         {
                             return true;
                         }
+                        // checks the opposite case
                         else if (item.x == item2.y && item2.x == possibleMove.y && possibleMove.x == item.y)
                         {
                             return true;
@@ -174,46 +182,92 @@ namespace HexagonGame{
             return false;
         }
 
-            
+
         //uses lookahead function to determine if this is a good move to make
         public static void CalculateMove(int nodeOne, Globals global)
         {
             //at end, will contain all legal moves
             List<Edge> possibleMoves = new List<Edge>();
-            int count = 0;
-            foreach(Vertex vertex in global.vertices)
+            int count = 0; // determines if the edge has been made already
+
+            //check all vertices in the game and makes predictive moves
+            foreach (Vertex vertex in global.vertices)
             {
-                Edge possibleMove = new Edge(nodeOne, vertex.i, global.AIPlayer);
-                foreach(Edge item in global.AIPlayerEdges)
+                //checks if move has been made already
+                Edge possibleMove1 = new Edge(nodeOne, vertex.i, global.AIPlayer);
+                Edge possibleMove2 = new Edge(vertex.i, nodeOne, global.AIPlayer);
+                foreach (Edge item in global.AIPlayerEdges)
                 {
-                    if(possibleMove == item)
+                    if (possibleMove1 == item || possibleMove2 == item)
                     {
                         count++;
                     }
                 }
+
+                //if new move, check if it is legal
                 if (count == 0)
                 {
                     //if possible Move makes us lose, ignore it
-                    if (!checkMoveLookahead(possibleMove, global))
+                    if (!checkMoveLookahead(possibleMove1, global))
                     {
-                        possibleMoves.Add(possibleMove);
+                        possibleMoves.Add(possibleMove1);
                     }
                 }
             }
         }
 
+        public static void CalculateMove(Globals global)
+        {
+            //at end, will contain all legal moves
+            List<Edge> possibleMoves = new List<Edge>();
+            int count = 0; // determines if the edge has been made already
+
+            //check all vertices in the game and makes predictive moves
+            foreach (Vertex vertex1 in global.vertices)
+            {
+                foreach (Vertex vertex2 in global.vertices)
+                {
+                    //checks if move has been made already
+                    Edge possibleMove1 = new Edge(vertex1.i, vertex2.i, global.AIPlayer);
+                    Edge possibleMove2 = new Edge(vertex2.i, vertex1.i, global.AIPlayer);
+                    foreach (Edge item in global.AIPlayerEdges)
+                    {
+                        if (possibleMove1 == item || possibleMove2 == item)
+                        {
+                            count++;
+                        }
+                    }
+
+                    //if new move, check if it is legal
+                    if (count == 0)
+                    {
+                        //if possible Move makes us lose, ignore it
+                        if (!checkMoveLookahead(possibleMove1, global))
+                        {
+                            possibleMoves.Add(possibleMove1);
+                        }
+                    }
+                }
+            }
+        }
+
+        // AI makes a move, determining the best possible choice
         public static void AIPlayerMove(Globals global)
         {
             int firstNode = 0;
             int secondNode = 0;
             int count = 0;
+
+            //ensures that the AI is supposed to move now
             if(global.currentPlayer == global.AIPlayer)
             {
+                // checks every vertex possible
                 foreach (Vertex vertex in global.vertices)
                 {
-
+                    //checks all edges that have already been made
                     foreach (Edge edgeItem in global.allEdges)
                     {
+                        // checks if the current vertex has been used already
                         if (vertex.i == edgeItem.x || vertex.i == edgeItem.y)
                         {
                             count++;
@@ -221,6 +275,7 @@ namespace HexagonGame{
 
                     }
 
+                    
                     if (count == 0)
                     {
                         if (firstNode == 0)
@@ -232,6 +287,7 @@ namespace HexagonGame{
 
                     }
 
+                    // if both vertices have not been used already, it is an optimal move
                     if(firstNode != 0 && secondNode != 0)
                     {
                         //make move with firstNode and secondNode
@@ -240,16 +296,18 @@ namespace HexagonGame{
                         global.AIPlayerEdges.Add(edgeMove);
                     }
 
+                    //if we find one vertex that has been used, we make do with the open vertex
                     else if (firstNode != 0 || secondNode == 0 )
                     {
                         //choose a vertex we already picked, using lookahead function
                         CalculateMove(firstNode, global);
                     }
 
-
+                    // if no vertex is free, make a move with what has already been made
                     else if (firstNode == 0 && secondNode == 0)
                     {
-                        //use lookahead function, find optimal move
+                        //use lookahead function, find optimal move with all possible moves to make
+                        CalculateMove(global);
                     }
                 }
             }
