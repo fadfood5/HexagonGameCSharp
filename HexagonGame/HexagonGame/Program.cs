@@ -6,16 +6,16 @@ using System.Collections.Generic;
 
 namespace HexagonGame{
 	//Global variables
-	public static class Globals{ 
+	public class Globals{ 
 		public int currentPlayer;
 	}
 
 	public class Edge{
-		public Vertex x;
-		public Vertex y;
+		public int x;
+		public int y;
 		public int z;
 
-		public Edge(Vertex a, Vertex b, int player){
+		public Edge(int a, int b, int player){
 			x = a;
 			y = b;
 			z = player;
@@ -45,10 +45,20 @@ namespace HexagonGame{
 			player2 = new List<Edge>();
 		}
 
-		public void addEdge(Vertex i, Vertex j, int player){
+		public void changePlayer(Globals global){
+			if (global.currentPlayer == 1) {
+				global.currentPlayer = 2;
+				Console.WriteLine ("Player changed to 2");
+			} else {
+				global.currentPlayer = 1;
+				Console.WriteLine ("Player changed to 1");
+			}
+		}
+
+		public void addEdge(Edge i, int player){
 
 			//Create temp Edge Object
-			Edge newEdge = new Edge(i, j, player);
+			Edge newEdge = new Edge(i.x, i.y, player);
 
 			//Add edge to corresponding list
 			if (player == 1)
@@ -59,7 +69,7 @@ namespace HexagonGame{
 			//Add edge to list of all edges
 			allEdges.Add(newEdge);
 
-			Console.WriteLine("Added edge to vertex: (" + i + ", " + j + ")");
+			Console.WriteLine("Added edge to vertex: (" + i.x + ", " + i.y + ")");
 		}
 
 		public void addVertex(int i){
@@ -80,6 +90,17 @@ namespace HexagonGame{
 				count++;
 			}
 		}
+		public int checkIfEdgeExists(Edge ed){
+			foreach (Edge item in allEdges) {
+				Console.WriteLine ("Edge: " + item.x + ", " + item.y);
+				if ((item.x == ed.x && item.y == ed.y) || (item.x == ed.y && item.y == ed.x)) {
+					Console.WriteLine ("Edge already exists! Make another move");
+					return 0;
+				}
+			}
+			Console.WriteLine ("Edge does not exist.");
+			return 1;
+		}
 		public void printEdges(int player){
 			int count = 0;
 			if (player == 1) {
@@ -96,6 +117,9 @@ namespace HexagonGame{
 				}
 			}
 		}
+		public int checkIfLoss(Globals ){
+			
+		}
 
 		public static void Main(string[] args){
 			Hexagon p = new Hexagon (6);
@@ -105,14 +129,15 @@ namespace HexagonGame{
 
 			Console.WriteLine ("Which player starts first? (1 or 2)");
 			int player = Console.Read();
-
+			Globals global = new Globals ();
 			if (player == 1)
-				Globals.currentPlayer = 1;
+				global.currentPlayer = 1;
 			else if (player == 2)
-				Globals.currentPlayer = 2;
-
+				global.currentPlayer = 2;
+			Edge ed = new Edge (0, 1, 1);
+			p.addEdge (ed, 1);
+			p.checkIfEdgeExists (ed);
 			//p.printEdges ();
-
 		}
 	}
 }
