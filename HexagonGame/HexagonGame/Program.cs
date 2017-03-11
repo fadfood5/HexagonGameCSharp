@@ -117,8 +117,30 @@ namespace HexagonGame{
 				}
 			}
 		}
-		public int checkIfLoss(Globals ){
-			
+		public bool checkIfLoss(Globals globalValue){
+			foreach (Edge item in player2)
+            {
+                foreach (Edge item2 in player2)
+                {
+                    if (item2 != item && item.y == item2.x)
+                    {
+                        foreach(Edge item3 in player2)
+                        {
+                            if(item3 != item2 && item3 != item && item2.y == item3.x)
+                            {
+                                if (item3.y == item.x)
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            return false;
+            
 		}
 
 		public static void Main(string[] args){
